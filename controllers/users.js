@@ -37,8 +37,50 @@ const createUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { name, about } = req.body;
+    const user = await User.findByIdAndUpdate(req.user._id, { name, about }, {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+      upsert: true, // если пользователь не найден, он будет создан
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(201).json(user);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Произошла ошибка' });
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const user = await User.findByIdAndUpdate(req.user._id, { avatar }, {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+      upsert: true, // если пользователь не найден, он будет создан
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(201).json(user);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Произошла ошибка' });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
+  updateUser,
+  updateAvatar,
 };

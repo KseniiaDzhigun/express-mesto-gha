@@ -34,8 +34,40 @@ const createCard = async (req, res) => {
   }
 };
 
+const putLike = async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const card = await Card.findByIdAndUpdate(
+      cardId,
+      { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+      { new: true }, // обработчик then получит на вход обновлённую запись
+    );
+    return res.status(201).json(card);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Произошла ошибка' });
+  }
+};
+
+const removeLike = async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const card = await Card.findByIdAndUpdate(
+      cardId,
+      { $pull: { likes: req.user._id } }, // убрать _id из массива
+      { new: true }, // обработчик then получит на вход обновлённую запись
+    );
+    return res.status(201).json(card);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Произошла ошибка' });
+  }
+};
+
 module.exports = {
   getCards,
   deleteCardById,
   createCard,
+  putLike,
+  removeLike,
 };
