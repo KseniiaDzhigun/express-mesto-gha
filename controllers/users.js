@@ -5,8 +5,7 @@ const getUsers = async (req, res) => {
     const users = await User.find({});
     return res.status(200).json(users);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
@@ -16,13 +15,12 @@ const getUserById = async (req, res) => {
     const user = await User.findById(id);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
     return res.status(200).json(user);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
@@ -32,8 +30,11 @@ const createUser = async (req, res) => {
     const user = await User.create({ name, about, avatar });
     return res.status(201).json(user);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
@@ -47,13 +48,16 @@ const updateUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
     return res.status(201).json(user);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
@@ -67,13 +71,16 @@ const updateAvatar = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
     return res.status(201).json(user);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 

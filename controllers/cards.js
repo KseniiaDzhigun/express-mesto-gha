@@ -6,20 +6,24 @@ const getCards = async (req, res) => {
     const cards = await Card.find({});
     return res.status(200).json(cards);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
 const deleteCardById = async (req, res) => {
   try {
     const { id } = req.params;
+    const card = await Card.findById(id);
+
+    if (!card) {
+      return res.status(404).json({ message: 'Карточка не найдена' });
+    }
+
     await Card.findByIdAndRemove(id);
 
     return res.status(200).json({ message: 'Пост удалён' });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
@@ -29,38 +33,58 @@ const createCard = async (req, res) => {
     const card = await Card.create({ owner: cardOwner, ...req.body });
     return res.status(201).json(card);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
 const putLike = async (req, res) => {
   try {
     const { cardId } = req.params;
-    const card = await Card.findByIdAndUpdate(
+    const card = await Card.findById(cardId);
+
+    if (!card) {
+      return res.status(404).json({ message: 'Карточка не найдена' });
+    }
+
+    const cardWithLike = await Card.findByIdAndUpdate(
       cardId,
       { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
       { new: true }, // обработчик then получит на вход обновлённую запись
     );
-    return res.status(201).json(card);
+    return res.status(201).json(cardWithLike);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
 const removeLike = async (req, res) => {
   try {
     const { cardId } = req.params;
-    const card = await Card.findByIdAndUpdate(
+    const card = await Card.findById(cardId);
+
+    if (!card) {
+      return res.status(404).json({ message: 'Карточка не найдена' });
+    }
+    const cardWithoutLike = await Card.findByIdAndUpdate(
       cardId,
       { $pull: { likes: req.user._id } }, // убрать _id из массива
       { new: true }, // обработчик then получит на вход обновлённую запись
     );
-    return res.status(201).json(card);
+    return res.status(201).json(cardWithoutLike);
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Произошла ошибка' });
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
 
