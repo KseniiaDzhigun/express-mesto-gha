@@ -20,6 +20,9 @@ const getUserById = async (req, res) => {
 
     return res.status(200).json(user);
   } catch (e) {
+    if (e.name === 'CastError') {
+      return res.status(400).send({ message: 'Передан невалидный id пользователя' });
+    }
     return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
@@ -51,13 +54,13 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-    return res.status(201).json(user);
+    return res.status(200).json(user);
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
       return res.status(400).json({ message: errors.join(', ') });
     }
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(500).send({ message: 'Произошла ошибка' });
   }
 };
 
@@ -74,7 +77,7 @@ const updateAvatar = async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-    return res.status(201).json(user);
+    return res.status(200).json(user);
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);

@@ -23,6 +23,9 @@ const deleteCardById = async (req, res) => {
 
     return res.status(200).json({ message: 'Пост удалён' });
   } catch (e) {
+    if (e.name === 'CastError') {
+      return res.status(400).send({ message: 'Передан невалидный id карточки' });
+    }
     return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
@@ -61,6 +64,9 @@ const putLike = async (req, res) => {
       const errors = Object.values(e.errors).map((err) => err.message);
       return res.status(400).json({ message: errors.join(', ') });
     }
+    if (e.name === 'CastError') {
+      return res.status(400).send({ message: 'Передан невалидный id карточки' });
+    }
     return res.status(500).json({ message: 'Произошла ошибка' });
   }
 };
@@ -78,11 +84,14 @@ const removeLike = async (req, res) => {
       { $pull: { likes: req.user._id } }, // убрать _id из массива
       { new: true }, // обработчик then получит на вход обновлённую запись
     );
-    return res.status(201).json(cardWithoutLike);
+    return res.status(200).json(cardWithoutLike);
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
       return res.status(400).json({ message: errors.join(', ') });
+    }
+    if (e.name === 'CastError') {
+      return res.status(400).send({ message: 'Передан невалидный id пользователя' });
     }
     return res.status(500).json({ message: 'Произошла ошибка' });
   }
