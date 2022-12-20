@@ -60,10 +60,6 @@ const putLike = async (req, res) => {
     );
     return res.status(201).json(cardWithLike);
   } catch (e) {
-    if (e.name === 'ValidationError') {
-      const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(400).json({ message: errors.join(', ') });
-    }
     if (e.name === 'CastError') {
       return res.status(400).send({ message: 'Передан невалидный id карточки' });
     }
@@ -86,10 +82,6 @@ const removeLike = async (req, res) => {
     );
     return res.status(200).json(cardWithoutLike);
   } catch (e) {
-    if (e.name === 'ValidationError') {
-      const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(400).json({ message: errors.join(', ') });
-    }
     if (e.name === 'CastError') {
       return res.status(400).send({ message: 'Передан невалидный id пользователя' });
     }
