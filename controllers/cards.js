@@ -1,32 +1,42 @@
 const Card = require('../models/card');
 const User = require('../models/user');
+const {
+  BAD_REQUEST,
+  BAD_REQUEST_MESSAGE,
+  NOT_FOUND,
+  NOT_FOUND_MESSAGE_CARD,
+  INTERNAL_SERVER_ERROR,
+  INTERNAL_SERVER_ERROR_MESSAGE,
+  OK,
+  OK_MESSAGE,
+  CREATED,
+} = require('../utils/constants');
 
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
-    return res.status(200).json(cards);
+    return res.status(OK).json(cards);
   } catch (e) {
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
 const deleteCardById = async (req, res) => {
   try {
     const { id } = req.params;
-    const card = await Card.findById(id);
 
-    if (!card) {
-      return res.status(404).json({ message: 'Карточка не найдена' });
+    const cardDeleted = await Card.findByIdAndRemove(id);
+
+    if (!cardDeleted) {
+      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
     }
 
-    await Card.findByIdAndRemove(id);
-
-    return res.status(200).json({ message: 'Пост удалён' });
+    return res.status(OK).json({ message: OK_MESSAGE });
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан невалидный id карточки' });
+      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
     }
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
@@ -34,58 +44,59 @@ const createCard = async (req, res) => {
   try {
     const cardOwner = await User.findById(req.user._id);
     const card = await Card.create({ owner: cardOwner, ...req.body });
-    return res.status(201).json(card);
+    return res.status(CREATED).json(card);
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(400).json({ message: errors.join(', ') });
+      return res.status(BAD_REQUEST).json({ message: errors.join(', ') });
     }
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
 const putLike = async (req, res) => {
   try {
     const { cardId } = req.params;
-    const card = await Card.findById(cardId);
-
-    if (!card) {
-      return res.status(404).json({ message: 'Карточка не найдена' });
-    }
 
     const cardWithLike = await Card.findByIdAndUpdate(
       cardId,
       { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
       { new: true }, // обработчик then получит на вход обновлённую запись
     );
-    return res.status(201).json(cardWithLike);
+
+    if (!cardWithLike) {
+      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
+    }
+
+    return res.status(CREATED).json(cardWithLike);
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан невалидный id карточки' });
+      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
     }
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
 const removeLike = async (req, res) => {
   try {
     const { cardId } = req.params;
-    const card = await Card.findById(cardId);
 
-    if (!card) {
-      return res.status(404).json({ message: 'Карточка не найдена' });
-    }
     const cardWithoutLike = await Card.findByIdAndUpdate(
       cardId,
       { $pull: { likes: req.user._id } }, // убрать _id из массива
       { new: true }, // обработчик then получит на вход обновлённую запись
     );
-    return res.status(200).json(cardWithoutLike);
+
+    if (!cardWithoutLike) {
+      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
+    }
+
+    return res.status(OK).json(cardWithoutLike);
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан невалидный id пользователя' });
+      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
     }
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
   }
 };
 
