@@ -10,6 +10,8 @@ const {
   OK,
   OK_MESSAGE,
   CREATED,
+  FORBIDDEN,
+  FORBIDDEN_MESSAGE,
 } = require('../utils/constants');
 
 const getCards = async (req, res) => {
@@ -25,11 +27,17 @@ const deleteCardById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const cardDeleted = await Card.findByIdAndRemove(id);
+    const card = await Card.findById(id);
 
-    if (!cardDeleted) {
+    if (!card) {
       return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
     }
+
+    if (req.user._id !== String(card.owner._id)) {
+      return res.status(FORBIDDEN).json({ message: FORBIDDEN_MESSAGE });
+    }
+
+    await card.remove(id);
 
     return res.status(OK).json({ message: OK_MESSAGE });
   } catch (e) {

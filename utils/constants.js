@@ -8,6 +8,11 @@ const INTERNAL_SERVER_ERROR_MESSAGE = 'Произошла ошибка';
 const OK = 200;
 const OK_MESSAGE = 'Пост удалён';
 const CREATED = 201;
+const UNAUTHORIZED = 401;
+const UNAUTHORIZED_MESSAGE_LOGIN = 'Неправильные почта или пароль';
+const UNAUTHORIZED_MESSAGE_AUTH = 'Необходима авторизация';
+const FORBIDDEN = 403;
+const FORBIDDEN_MESSAGE = 'Вы не можете удалять карточки других пользователей';
 
 module.exports = {
   BAD_REQUEST,
@@ -20,4 +25,9 @@ module.exports = {
   OK,
   OK_MESSAGE,
   CREATED,
+  UNAUTHORIZED,
+  UNAUTHORIZED_MESSAGE_LOGIN,
+  UNAUTHORIZED_MESSAGE_AUTH,
+  FORBIDDEN,
+  FORBIDDEN_MESSAGE,
 };
