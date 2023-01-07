@@ -3,6 +3,7 @@ require('dotenv').config();
 const cookieParser = require('cookie-parser');
 
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const router = require('./routes');
 const { INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MESSAGE } = require('./utils/constants');
 
@@ -13,6 +14,8 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use('/', router);
+
+app.use(errors());
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
