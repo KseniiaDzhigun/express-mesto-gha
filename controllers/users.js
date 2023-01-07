@@ -1,34 +1,34 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const BadRequestError = require('../errors/bad-request-err');
+const ConflictError = require('../errors/conflict-err');
+const NotFoundError = require('../errors/not-found-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const {
-  BAD_REQUEST,
   BAD_REQUEST_MESSAGE,
-  NOT_FOUND,
   NOT_FOUND_MESSAGE_USER,
-  INTERNAL_SERVER_ERROR,
-  INTERNAL_SERVER_ERROR_MESSAGE,
   OK,
   CREATED,
-  UNAUTHORIZED,
   UNAUTHORIZED_MESSAGE_LOGIN,
+  CONFLICT_MESSAGE,
 } = require('../utils/constants');
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const {
       email, password,
     } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(UNAUTHORIZED).json({ message: UNAUTHORIZED_MESSAGE_LOGIN });
+      return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
     }
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
-      return res.status(UNAUTHORIZED).json({ message: UNAUTHORIZED_MESSAGE_LOGIN });
+      return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
     }
     const token = jwt.sign(
       { _id: user._id },
@@ -47,54 +47,54 @@ const login = async (req, res) => {
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(BAD_REQUEST).json({ message: errors.join(', ') });
+      return next(new BadRequestError(errors.join(', ')));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     return res.status(OK).json(users);
   } catch (e) {
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
 
     if (!user) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_USER });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_USER));
     }
 
     return res.status(OK).json(user);
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      return next(new BadRequestError(BAD_REQUEST_MESSAGE));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
 
     if (!user) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_USER });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_USER));
     }
 
     return res.status(OK).json(user);
   } catch (e) {
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
     const {
       name, about, avatar, email, password,
@@ -105,15 +105,18 @@ const createUser = async (req, res) => {
     });
     return res.status(CREATED).json(user);
   } catch (e) {
+    if (e.code === 11000) {
+      return next(new ConflictError(CONFLICT_MESSAGE));
+    }
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(BAD_REQUEST).json({ message: errors.join(', ') });
+      return next(new BadRequestError(errors.join(', ')));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const user = await User.findByIdAndUpdate(req.user._id, { name, about }, {
@@ -122,20 +125,20 @@ const updateUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_USER });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_USER));
     }
 
     return res.status(OK).json(user);
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(BAD_REQUEST).json({ message: errors.join(', ') });
+      return next(new BadRequestError(errors.join(', ')));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const user = await User.findByIdAndUpdate(req.user._id, { avatar }, {
@@ -144,16 +147,16 @@ const updateAvatar = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_USER });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_USER));
     }
 
     return res.status(OK).json(user);
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(BAD_REQUEST).json({ message: errors.join(', ') });
+      return next(new BadRequestError(errors.join(', ')));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 

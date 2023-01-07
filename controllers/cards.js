@@ -1,40 +1,38 @@
+const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenError = require('../errors/forbidden-err');
+const NotFoundError = require('../errors/not-found-err');
 const Card = require('../models/card');
 const User = require('../models/user');
 const {
-  BAD_REQUEST,
   BAD_REQUEST_MESSAGE,
-  NOT_FOUND,
   NOT_FOUND_MESSAGE_CARD,
-  INTERNAL_SERVER_ERROR,
-  INTERNAL_SERVER_ERROR_MESSAGE,
   OK,
   OK_MESSAGE,
   CREATED,
-  FORBIDDEN,
   FORBIDDEN_MESSAGE,
 } = require('../utils/constants');
 
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     return res.status(OK).json(cards);
   } catch (e) {
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const deleteCardById = async (req, res) => {
+const deleteCardById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const card = await Card.findById(id);
 
     if (!card) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_CARD));
     }
 
     if (req.user._id !== String(card.owner._id)) {
-      return res.status(FORBIDDEN).json({ message: FORBIDDEN_MESSAGE });
+      return next(new ForbiddenError(FORBIDDEN_MESSAGE));
     }
 
     await card.remove(id);
@@ -42,13 +40,13 @@ const deleteCardById = async (req, res) => {
     return res.status(OK).json({ message: OK_MESSAGE });
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      return next(new BadRequestError(BAD_REQUEST_MESSAGE));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const createCard = async (req, res) => {
+const createCard = async (req, res, next) => {
   try {
     const cardOwner = await User.findById(req.user._id);
     const card = await Card.create({ owner: cardOwner, ...req.body });
@@ -56,13 +54,13 @@ const createCard = async (req, res) => {
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
-      return res.status(BAD_REQUEST).json({ message: errors.join(', ') });
+      return next(new BadRequestError(errors.join(', ')));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const putLike = async (req, res) => {
+const putLike = async (req, res, next) => {
   try {
     const { cardId } = req.params;
 
@@ -73,19 +71,19 @@ const putLike = async (req, res) => {
     );
 
     if (!cardWithLike) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_CARD));
     }
 
     return res.status(CREATED).json(cardWithLike);
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      return next(new BadRequestError(BAD_REQUEST_MESSAGE));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
-const removeLike = async (req, res) => {
+const removeLike = async (req, res, next) => {
   try {
     const { cardId } = req.params;
 
@@ -96,15 +94,15 @@ const removeLike = async (req, res) => {
     );
 
     if (!cardWithoutLike) {
-      return res.status(NOT_FOUND).json({ message: NOT_FOUND_MESSAGE_CARD });
+      return next(new NotFoundError(NOT_FOUND_MESSAGE_CARD));
     }
 
     return res.status(OK).json(cardWithoutLike);
   } catch (e) {
     if (e.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      return next(new BadRequestError(BAD_REQUEST_MESSAGE));
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: INTERNAL_SERVER_ERROR_MESSAGE });
+    return next(e);
   }
 };
 
