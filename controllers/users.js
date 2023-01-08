@@ -6,8 +6,6 @@ const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
 const User = require('../models/user');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
-
 const {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE_USER,
@@ -15,6 +13,7 @@ const {
   CREATED,
   UNAUTHORIZED_MESSAGE_LOGIN,
   CONFLICT_MESSAGE,
+  JWT_SECRET,
 } = require('../utils/constants');
 
 const login = async (req, res, next) => {
@@ -32,7 +31,7 @@ const login = async (req, res, next) => {
     }
     const token = jwt.sign(
       { _id: user._id },
-      NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+      JWT_SECRET,
       { expiresIn: '7d' },
     );
 
