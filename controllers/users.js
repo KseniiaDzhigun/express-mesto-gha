@@ -17,42 +17,6 @@ const {
 
 const JWT_SECRET = 'e227050e57812d82451696746263de45d9e20926b9cbdfa29ecdbba5ac7a3cfe';
 
-const login = async (req, res, next) => {
-  try {
-    const {
-      email, password,
-    } = req.body;
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
-    }
-    const matched = await bcrypt.compare(password, user.password);
-    if (!matched) {
-      return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
-    }
-    const token = jwt.sign(
-      { _id: user._id },
-      JWT_SECRET,
-      { expiresIn: '7d' },
-    );
-
-    return res
-      .cookie('jwt', token, {
-        // token - наш JWT токен, который мы отправляем
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-        sameSite: true,
-      })
-      .send({ message: 'Токен записан' });
-  } catch (e) {
-    if (e.name === 'ValidationError') {
-      const errors = Object.values(e.errors).map((err) => err.message);
-      return next(new BadRequestError(errors.join(', ')));
-    }
-    return next(e);
-  }
-};
-
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
@@ -103,7 +67,13 @@ const createUser = async (req, res, next) => {
     const user = await User.create({
       name, about, avatar, email, password: hash,
     });
-    return res.status(CREATED).json(user);
+    return res.status(CREATED).json({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      _id: user.id,
+    });
   } catch (e) {
     if (e.code === 11000) {
       return next(new ConflictError(CONFLICT_MESSAGE));
@@ -151,6 +121,42 @@ const updateAvatar = async (req, res, next) => {
     }
 
     return res.status(OK).json(user);
+  } catch (e) {
+    if (e.name === 'ValidationError') {
+      const errors = Object.values(e.errors).map((err) => err.message);
+      return next(new BadRequestError(errors.join(', ')));
+    }
+    return next(e);
+  }
+};
+
+const login = async (req, res, next) => {
+  try {
+    const {
+      email, password,
+    } = req.body;
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
+    }
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) {
+      return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
+    }
+    const token = jwt.sign(
+      { _id: user._id },
+      JWT_SECRET,
+      { expiresIn: '7d' },
+    );
+
+    return res
+      .cookie('jwt', token, {
+        // token - наш JWT токен, который мы отправляем
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      })
+      .send({ message: 'Токен записан' });
   } catch (e) {
     if (e.name === 'ValidationError') {
       const errors = Object.values(e.errors).map((err) => err.message);
