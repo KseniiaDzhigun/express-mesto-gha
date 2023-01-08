@@ -14,6 +14,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use('/', router);
+app.use('*', (req, res) => res.status(404).json({ message: 'Путь не найден' }));
 
 app.use(errors());
 
