@@ -13,8 +13,9 @@ const {
   CREATED,
   UNAUTHORIZED_MESSAGE_LOGIN,
   CONFLICT_MESSAGE,
-  JWT_SECRET,
 } = require('../utils/constants');
+
+const JWT_SECRET = 'e227050e57812d82451696746263de45d9e20926b9cbdfa29ecdbba5ac7a3cfe';
 
 const login = async (req, res, next) => {
   try {

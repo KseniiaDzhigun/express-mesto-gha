@@ -13,8 +13,6 @@ const CONFLICT_MESSAGE = 'Пользователь с таким email уже с
 
 const REGEX_URL = /^https?:\/\/(www.)?[\w-.~:/?#[\]@!$&'()*+,;=]+#?$/;
 
-const JWT_SECRET = 'e227050e57812d82451696746263de45d9e20926b9cbdfa29ecdbba5ac7a3cfe';
-
 module.exports = {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE_USER,
@@ -29,5 +27,4 @@ module.exports = {
   FORBIDDEN_MESSAGE,
   CONFLICT_MESSAGE,
   REGEX_URL,
-  JWT_SECRET,
 };
