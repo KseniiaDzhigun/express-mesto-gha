@@ -18,8 +18,10 @@ app.use(express.json());
 app.use('/', router);
 app.use('*', (req, res, next) => next(new NotFoundError(NOT_FOUND_MESSAGE_PATH)));
 
+// Обработчик ошибок celebrate
 app.use(errors());
 
+// Централизованный обработчик ошибок
 app.use(err);
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {

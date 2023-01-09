@@ -31,6 +31,7 @@ const deleteCardById = async (req, res, next) => {
       return next(new NotFoundError(NOT_FOUND_MESSAGE_CARD));
     }
 
+    // У пользователя не должно быть возможности удалять карточки других пользователей
     if (req.user._id !== String(card.owner._id)) {
       return next(new ForbiddenError(FORBIDDEN_MESSAGE));
     }

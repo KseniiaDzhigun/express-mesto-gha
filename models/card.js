@@ -11,11 +11,13 @@ const cardSchema = mongoose.Schema({
   link: {
     type: String,
     required: true,
+    // Используем метод isURL модуля Validator
     validate: {
       validator: (link) => validator.isURL(link),
       message: (props) => `${props.value} не валидная ссылка!`,
     },
   },
+  // Настраиваем связь двух схем card и user
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',

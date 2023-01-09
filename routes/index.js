@@ -23,11 +23,14 @@ router.post('/signup', celebrate({
   }),
 }), createUser);
 
+// Роут signout, который очищает куки
 router.get('/signout', (req, res) => {
   res.clearCookie('jwt').send({ message: 'Выход' });
 });
 
+// Защищаем авторизацией все маршруты, кроме страницы регистрации и логина
 router.use(auth);
+
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 

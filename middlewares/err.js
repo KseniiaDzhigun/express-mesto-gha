@@ -1,3 +1,5 @@
+// Мидлвэр для централизованной обработки ошибок
+
 const { INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MESSAGE } = require('../utils/constants');
 
 module.exports = (err, req, res, next) => {

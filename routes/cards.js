@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const { celebrate, Joi } = require('celebrate');
 const {
   getCards, deleteCardById, createCard, putLike, removeLike,
@@ -7,8 +8,10 @@ const { REGEX_URL } = require('../utils/constants');
 
 router.get('/', getCards);
 
+// Тела, параметры запросов к серверу должны валидироваться до передачи обработки в контроллеры
 router.delete('/:id', celebrate({
   params: Joi.object().keys({
+    // Id необходимо валидировать как hex последовательность длиной 24 символа (0-9, A-F)
     id: Joi.string().length(24).hex().required(),
   }),
 }), deleteCardById);

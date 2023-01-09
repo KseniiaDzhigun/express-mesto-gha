@@ -1,3 +1,4 @@
+// Миддлвэр для защиты авторизацией всех маршрутов, кроме страницы регистрации и логина
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/unauthorized-err');
 const {

@@ -15,6 +15,7 @@ const {
   CONFLICT_MESSAGE,
 } = require('../utils/constants');
 
+// Захардкорили подпись в коде, дальше нужно перенести в файл .env
 const JWT_SECRET = 'e227050e57812d82451696746263de45d9e20926b9cbdfa29ecdbba5ac7a3cfe';
 
 const getUsers = async (req, res, next) => {
@@ -22,6 +23,7 @@ const getUsers = async (req, res, next) => {
     const users = await User.find({});
     return res.status(OK).json(users);
   } catch (e) {
+    // Вызываем next с аргументом-ошибкой - запрос перейдёт в обработчик ошибки
     return next(e);
   }
 };
@@ -135,6 +137,7 @@ const login = async (req, res, next) => {
     const {
       email, password,
     } = req.body;
+    // Здесь в объекте user будет хеш пароля
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return next(new UnauthorizedError(UNAUTHORIZED_MESSAGE_LOGIN));
@@ -148,7 +151,7 @@ const login = async (req, res, next) => {
       JWT_SECRET,
       { expiresIn: '7d' },
     );
-
+    // Записываем JWT в httpOnly куку
     return res
       .cookie('jwt', token, {
         // token - наш JWT токен, который мы отправляем

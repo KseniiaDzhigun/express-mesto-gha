@@ -9,6 +9,7 @@ const { REGEX_URL } = require('../utils/constants');
 router.get('/', getUsers);
 router.get('/me', getCurrentUser);
 
+// Тела, параметры запросов к серверу должны валидироваться до передачи обработки в контроллеры
 router.get('/:id', celebrate({
   // валидируем параметры
   params: Joi.object().keys({

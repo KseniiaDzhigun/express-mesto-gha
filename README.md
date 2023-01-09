@@ -17,3 +17,6 @@
 
 ## Ссылка на проект
 [express-mesto-gha](https://github.com/KseniiaDzhigun/express-mesto-gha) 
+
+## Планы по доработке проекта:
+Вынести в константы валидаторы Joi

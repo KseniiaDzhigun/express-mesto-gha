@@ -13,6 +13,12 @@ const FORBIDDEN_MESSAGE = 'Вы не можете удалять карточк�
 const CONFLICT_MESSAGE = 'Пользователь с таким email уже существует';
 
 const REGEX_URL = /^https?:\/\/(www.)?[\w-.~:/?#[\]@!$&'()*+,;=]+\.[a-zA-z]+(\/[\w-.~:/?#[\]@!$&'()*+,;=]+)*#?$/;
+// Шаблон находит url таких форматов:
+// http://ya.ru
+// https://www.ya.ru
+// http://2-domains.ru
+// http://ya.ru/path/to/deep/
+// http://ya-ya-ya.ru
 
 module.exports = {
   BAD_REQUEST_MESSAGE,

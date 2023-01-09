@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      // Используем регулярное выражение для валидации поля
       validate: {
         validator: (v) => REGEX_URL.test(v),
         message: (props) => `${props.value} не валидная ссылка`,
@@ -28,6 +29,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: true,
+      // Используем метод isEmail модуля Validator
       validate: {
         validator: (email) => validator.isEmail(email),
         message: (props) => `${props.value} не валидный email!`,
@@ -36,6 +38,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      // По умолчанию хеш пароля пользователя не будет возвращаться из базы
       select: false,
     },
   },
