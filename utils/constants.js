@@ -12,7 +12,7 @@ const UNAUTHORIZED_MESSAGE_AUTH = 'Необходима авторизация';
 const FORBIDDEN_MESSAGE = 'Вы не можете удалять карточки других пользователей';
 const CONFLICT_MESSAGE = 'Пользователь с таким email уже существует';
 
-const REGEX_URL = /^https?:\/\/(www.)?[\w-~:/?#[\]@!$&'()*+,;=]+\.[a-zA-z]+(\/[\w-~:/?#[\]@!$&'()*+,;=]+)*#?$/;
+const REGEX_URL = /^https?:\/\/(www.)?[\w-~:/?#[\]@!$&'()*+,;=]+\.[a-zA-z]+(\/[\w-.~:/?#[\]@!$&'()*+,;=]+)*#?$/;
 
 module.exports = {
   BAD_REQUEST_MESSAGE,
