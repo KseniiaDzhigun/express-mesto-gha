@@ -1,6 +1,7 @@
 const BAD_REQUEST_MESSAGE = 'Передан невалидный id';
 const NOT_FOUND_MESSAGE_USER = 'Пользователь не найден';
 const NOT_FOUND_MESSAGE_CARD = 'Карточка не найдена';
+const NOT_FOUND_MESSAGE_PATH = 'Путь не найден';
 const INTERNAL_SERVER_ERROR = 500;
 const INTERNAL_SERVER_ERROR_MESSAGE = 'Произошла ошибка';
 const OK = 200;
@@ -11,12 +12,13 @@ const UNAUTHORIZED_MESSAGE_AUTH = 'Необходима авторизация';
 const FORBIDDEN_MESSAGE = 'Вы не можете удалять карточки других пользователей';
 const CONFLICT_MESSAGE = 'Пользователь с таким email уже существует';
 
-const REGEX_URL = /^https?:\/\/(www.)?[\w-.~:/?#[\]@!$&'()*+,;=]+#?$/;
+const REGEX_URL = /^https?:\/\/(www.)?[\w-~:/?#[\]@!$&'()*+,;=]+\.[a-zA-z]+(\/[\w-~:/?#[\]@!$&'()*+,;=]+)*#?$/;
 
 module.exports = {
   BAD_REQUEST_MESSAGE,
   NOT_FOUND_MESSAGE_USER,
   NOT_FOUND_MESSAGE_CARD,
+  NOT_FOUND_MESSAGE_PATH,
   INTERNAL_SERVER_ERROR,
   INTERNAL_SERVER_ERROR_MESSAGE,
   OK,

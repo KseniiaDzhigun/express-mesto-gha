@@ -158,10 +158,6 @@ const login = async (req, res, next) => {
       })
       .send({ message: 'Токен записан' });
   } catch (e) {
-    if (e.name === 'ValidationError') {
-      const errors = Object.values(e.errors).map((err) => err.message);
-      return next(new BadRequestError(errors.join(', ')));
-    }
     return next(e);
   }
 };
